@@ -32,7 +32,8 @@ import org.apache.maven.xml.sax.filter.RelativeProject;
 import org.xml.sax.ext.LexicalHandler;
 
 /**
- * 
+ * A BuildPomXMLFilterFactory which is context aware
+ *
  * @author Robert Scholte
  * @since 4.0.0
  */
@@ -40,18 +41,20 @@ public class DefaultBuildPomXMLFilterFactory extends BuildPomXMLFilterFactory
 {
     private final TransformerContext context;
     
+    /**
+     *
+     * @param context a set of data to extract values from as required for the build pom
+     * @param lexicalHandlerConsumer the lexical handler consumer
+     * @param consume {@code true} if this factory is being used for creating the consumer pom, otherwise {@code false}
+     */
     public DefaultBuildPomXMLFilterFactory( TransformerContext context,
-                                            Consumer<LexicalHandler> lexicalHandlerConsumer )
+                                            Consumer<LexicalHandler> lexicalHandlerConsumer, 
+                                            boolean consume )
     {
-        super( lexicalHandlerConsumer );
+        super( lexicalHandlerConsumer, consume );
         this.context = context;
     }
-    
-    public final TransformerContext getContext()
-    {
-        return context;
-    }
-    
+
     @Override
     protected Function<Path, Optional<RelativeProject>> getRelativePathMapper()
     {
@@ -64,6 +67,24 @@ public class DefaultBuildPomXMLFilterFactory extends BuildPomXMLFilterFactory
         return (g, a) -> Optional.ofNullable( context.getRawModel( g, a ) )
                             .map( m -> toVersion( m ) )
                             .orElse( null );
+    }
+
+    @Override
+    protected Optional<String> getChangelist()
+    {
+        return Optional.ofNullable( context.getUserProperty( "changelist" ) );
+    }
+
+    @Override
+    protected Optional<String> getRevision()
+    {
+        return Optional.ofNullable( context.getUserProperty( "revision" ) );
+    }
+
+    @Override
+    protected Optional<String> getSha1()
+    {
+        return Optional.ofNullable( context.getUserProperty( "sha1" ) );
     }
 
     private static RelativeProject toRelativeProject( final Model m )

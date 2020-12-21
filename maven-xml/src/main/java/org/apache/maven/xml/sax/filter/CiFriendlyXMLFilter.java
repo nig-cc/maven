@@ -33,20 +33,23 @@ import org.xml.sax.SAXException;
 class CiFriendlyXMLFilter
     extends AbstractSAXFilter
 {
+    private final boolean replace;
+    
     private Function<String, String> replaceChain = Function.identity();
     
     private String characters; 
     
     private boolean parseVersion;
-    
-    CiFriendlyXMLFilter()
+
+    CiFriendlyXMLFilter( boolean replace )
     {
-        super();
+        this.replace = replace;
     }
 
-    CiFriendlyXMLFilter( AbstractSAXFilter parent )
+    CiFriendlyXMLFilter( AbstractSAXFilter parent, boolean replace )
     {
         super( parent );
+        this.replace = replace;
     }
 
     public CiFriendlyXMLFilter setChangelist( String changelist )
@@ -108,7 +111,7 @@ class CiFriendlyXMLFilter
         if ( parseVersion )
         {
             // assuming this has the best performance
-            if ( characters != null && characters.contains( "${" ) )
+            if ( replace && characters != null && characters.contains( "${" ) )
             {
                 char[] ch = replaceChain.apply( characters ).toCharArray();
                 super.characters( ch, 0, ch.length );

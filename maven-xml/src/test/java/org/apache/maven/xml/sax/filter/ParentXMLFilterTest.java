@@ -89,6 +89,31 @@ public class ParentXMLFilterTest extends AbstractXMLFilterTests
         assertEquals( expected, actual );
     }
 
+    /**
+     * An empty relative path means it must downloaded from a repository.
+     * That implies that the version cannot be solved (if missing, Maven should complain)
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testEmptyRelativePathNoVersion() throws Exception
+    {
+        String input = "<parent>"
+            + "<groupId>GROUPID</groupId>"
+            + "<artifactId>ARTIFACTID</artifactId>"
+            + "<relativePath></relativePath>"
+            + "</parent>";
+        String expected = "<parent>"
+                        + "<groupId>GROUPID</groupId>"
+                        + "<artifactId>ARTIFACTID</artifactId>"
+                        + "<relativePath/>" // SAX optimization, however "" != null ...
+                        + "</parent>";
+
+        String actual = transform( input );
+
+        assertEquals( expected, actual );
+    }
+
     @Test
     public void testNoVersion() throws Exception
     {
